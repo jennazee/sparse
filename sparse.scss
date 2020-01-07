@@ -1,0 +1,59 @@
+$aqua: rgb(220, 255, 255);
+$spindrift: #73FCD6;
+$lilac: #D783FF;
+$salmon: #F3CCCF;
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+header {
+  padding-bottom: 15px;
+}
+
+body {
+  font-family: 'Andale Mono', 'Courier New', Courier, monospace;
+  background: $aqua;
+  position: relative;
+  min-height: 100%;
+}
+
+.Title {
+  font-size: 96px;
+  padding-top: 10px;
+  text-align: center;
+  margin: 0 20px;
+}
+
+.Wrapper {
+  text-align: center;
+}
+
+.Input {
+  font-family: 'Andale Mono', 'Courier New', Courier, monospace;
+  font-size: 36px;
+  margin-bottom: 36px;
+  padding: 8px;
+}
+
+.Token {
+  font-size: 36px;
+  background-color: $lilac;
+  padding: 8px;
+  display: inline-block;
+  margin: 2px;
+}
+
+.InToken {
+  background-color: $spindrift;
+}
+
+.FromToken {
+  background-color: $salmon;
+}
