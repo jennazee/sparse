@@ -1,19 +1,18 @@
+const inRegex = 'in: ?([^ ]+)';
+const fromRegex = 'from: ?([^ ]+)';
+const phraseRegex = '"([^"]+)"|\'([^\']+)\'';
+const termToken = '([^ ]+)';
+
+
 function sparse(string) {
     if (!string.length) return [];
 
-    const tokens = lexer(string);
+    const regex = new RegExp(`(${inRegex}|${fromRegex}|${phraseRegex}|${termToken})`, 'g')
 
-    return parser(tokens);
-}
+    const lexemes = string.match(regex);
+    console.log(lexemes)
 
-function lexer(string) {
-    const regex = /(in:[^ ]+|from:[^ ]+|"([^"]+)"|'([^']+)'|([^ ]+))/g
-
-    return string.match(regex);
-}
-
-function parser(tokens) {
-    return tokens.map((token) => {
+    const tokens = lexemes.map((token) => {
         if (isInToken(token)) {
             return makeInToken(token);
         }
@@ -23,19 +22,21 @@ function parser(tokens) {
         else {
             return makeTermToken(token);
         }
-    })
+    });
+
+    return tokens;
 }
 
 function isInToken(token) {
-    return token.match(/in:[^ ]+/);
+    return token.match(new RegExp(inRegex));
 }
 
 function isFromToken(token) {
-    return token.match(/from:[^ ]+/);
+    return token.match(new RegExp(fromRegex));
 }
 
 function isPhraseToken(token) {
-    return token.match(/"([^"]+)"/) || token.match(/'([^']+)'/);
+    return token.match(new RegExp(phraseRegex));
 }
 
 function makeInToken(token) {
@@ -55,10 +56,6 @@ class Token {
         this.className = 'Token';
         this.content = token;
         this.prefix = '';    
-    }
-
-    render() {
-        return `<div class="${this.className}">${this.prefix}${this.content}</div>`
     }
 }
 
@@ -80,6 +77,16 @@ class FromToken extends Token {
     }
 }
 
+class Modifier {
+    constructor(modifier) {
+        this.modifer = modifier;
+    }
+}
+
+function renderToken(tokenInstance) {
+    return `<div class="${tokenInstance.className}">${tokenInstance.prefix}${tokenInstance.content}</div>`
+}
+
 document.querySelector('[data-js="input"]').addEventListener('keyup', (e) => {
-    document.querySelector('[data-js="visualizer"]').innerHTML = sparse(e.target.value).map(p => p.render()).join('');
+    document.querySelector('[data-js="visualizer"]').innerHTML = sparse(e.target.value).map(t => renderToken(t)).join('');
 });
