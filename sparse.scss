@@ -1,7 +1,8 @@
 $aqua: rgb(220, 255, 255);
 $spindrift: #73FCD6;
-$lilac: #D783FF;
 $salmon: #F3CCCF;
+$honeydew: #D4FB79;
+$orchid: #7A81FF;
 
 * {
   padding: 0;
@@ -44,16 +45,22 @@ body {
 
 .Token {
   font-size: 36px;
-  background-color: $lilac;
+  background-color: $spindrift;
   padding: 8px;
   display: inline-block;
   margin: 2px;
 }
 
 .InToken {
-  background-color: $spindrift;
+  background-color: $orchid;
 }
 
 .FromToken {
   background-color: $salmon;
+}
+
+.Entity {
+  background-color: $honeydew;
+  padding: 4px 8px;
+  font-size: 34px;
 }

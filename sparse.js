@@ -5,12 +5,11 @@ const termToken = '([^ ]+)';
 
 
 function sparse(string) {
-    if (!string.length) return [];
+    if (!string.trim().length) return new Query([]);
 
     const regex = new RegExp(`(${inRegex}|${fromRegex}|${phraseRegex}|${termToken})`, 'g')
 
     const lexemes = string.match(regex);
-    console.log(lexemes)
 
     const tokens = lexemes.map((token) => {
         if (isInToken(token)) {
@@ -24,7 +23,10 @@ function sparse(string) {
         }
     });
 
-    return tokens;
+    const parseTree = new Query(tokens);
+    console.log(parseTree);
+
+    return parseTree;
 }
 
 function isInToken(token) {
@@ -51,42 +53,79 @@ function makeTermToken(token) {
     return new Token(token)
 }
 
+class Query {
+    constructor(tokens) {
+        this.type = 'Query';
+        this.terms = tokens;
+    }
+}
+
 class Token {
     constructor(token) {
-        this.className = 'Token';
-        this.content = token;
-        this.prefix = '';    
+        this.type = 'Term';
+        this.value = token;
+        this.prefix = '';
     }
 }
 
-class InToken extends Token {
+class InToken {
     constructor(token) {
-        super();
-        this.className = 'Token InToken';
-        this.prefix = 'in:';
-        this.content = token.replace(this.prefix, '');
+        this.type = 'InFilter';
+        this.rawToken = token;
+        this.modifier = new Modifier('in');
+        this.filter = new Entity(this.getFilterText());
+    }
+
+    getFilterText() {
+        return this.rawToken.replace(`${this.modifier.modifier}:`, '').trim();
     }
 }
 
-class FromToken extends Token {
+class FromToken {
     constructor(token) {
-        super();
-        this.className = 'Token FromToken';
-        this.prefix = 'from:'
-        this.content = token.replace(this.prefix, '');
+        this.type = 'FromFilter';
+        this.rawToken = token;
+        this.modifier = new Modifier('from');
+        this.filter = new Entity(this.getFilterText());
+    }
+
+    getFilterText() {
+        return this.rawToken.replace(`${this.modifier.modifier}:`, '').trim();
     }
 }
 
 class Modifier {
     constructor(modifier) {
-        this.modifer = modifier;
+        this.type = 'Modifier';
+        this.modifier = modifier;
     }
 }
 
-function renderToken(tokenInstance) {
-    return `<div class="${tokenInstance.className}">${tokenInstance.prefix}${tokenInstance.content}</div>`
+class Entity {
+    constructor(name) {
+        this.type = 'Entity';
+        this.name = name;
+    }
+}
+
+function renderFromTree(parseTree) {
+    return parseTree.terms.map((token) => {
+        if (token.type === 'Term') {
+            return `<div class="Token">${token.value}</div>`
+        }
+        if (token.type === 'InFilter') {
+            return `<div class="Token InToken">
+                ${token.modifier.modifier}:<span class="Entity">${token.filter.name}</span>
+                </div>`
+        }
+        if (token.type === 'FromFilter') {
+            return `<div class="Token FromToken">
+                ${token.modifier.modifier}:<span class="Entity">${token.filter.name}</span>
+                </div>`
+        }
+    }).join('');
 }
 
 document.querySelector('[data-js="input"]').addEventListener('keyup', (e) => {
-    document.querySelector('[data-js="visualizer"]').innerHTML = sparse(e.target.value).map(t => renderToken(t)).join('');
+    document.querySelector('[data-js="visualizer"]').innerHTML = renderFromTree(sparse(e.target.value));
 });
