@@ -1,0 +1,22 @@
+{
+  "name": "sparse",
+  "version": "1.0.0",
+  "description": "'for jsconf hawaii'",
+  "main": "sparse.js",
+  "scripts": {
+    "sass": "sass sparse.scss:sparse.css --style compressed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jennazee/sparse.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jennazee/sparse/issues"
+  },
+  "homepage": "https://github.com/jennazee/sparse#readme",
+  "dependencies": {
+    "sass": "^1.25.0"
+  }
+}

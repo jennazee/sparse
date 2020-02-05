@@ -3,14 +3,12 @@ const fromRegex = 'from: ?([^ ]+)';
 const phraseRegex = '"([^"]+)"|\'([^\']+)\'';
 const termToken = '([^ ]+)';
 
-function sparse(string) {
+function parse(string) {
   if (!string.trim().length) return new Query([]);
 
   const regex = new RegExp(`(${inRegex}|${fromRegex}|${phraseRegex}|${termToken})`, 'g');
 
   const lexemes = string.match(regex);
-
-  console.log('Lexemes: ', lexemes);
 
   const tokens = lexemes.map((token) => {
     if (isInToken(token)) {
@@ -21,8 +19,6 @@ function sparse(string) {
     }
     return makeTermToken(token);
   });
-
-  console.log('Tokens: ', tokens);
 
   const parseTree = new Query(tokens);
   console.log('Parse tree: ', parseTree);
@@ -61,6 +57,7 @@ class Token {
   constructor(token) {
     this.type = 'Term';
     this.value = token;
+    this.prefix = '';
   }
 }
 
@@ -68,6 +65,12 @@ class InToken {
   constructor(token) {
     this.type = 'InFilter';
     this.rawToken = token;
+    this.modifier = new Modifier('in');
+    this.filter = new Entity(this.getFilterText());
+  }
+
+  getFilterText() {
+    return this.rawToken.replace(`${this.modifier.modifier}:`, '').trim();
   }
 }
 
@@ -75,6 +78,26 @@ class FromToken {
   constructor(token) {
     this.type = 'FromFilter';
     this.rawToken = token;
+    this.modifier = new Modifier('from');
+    this.filter = new Entity(this.getFilterText());
+  }
+
+  getFilterText() {
+    return this.rawToken.replace(`${this.modifier.modifier}:`, '').trim();
+  }
+}
+
+class Modifier {
+  constructor(modifier) {
+    this.type = 'Modifier';
+    this.modifier = modifier;
+  }
+}
+
+class Entity {
+  constructor(name) {
+    this.type = 'Entity';
+    this.name = name;
   }
 }
 
@@ -87,12 +110,12 @@ function renderFromTree(parseTree) {
       }
       if (token.type === 'InFilter') {
         return `<div class="Token InToken">
-                ${token.rawToken}</span>
+                ${token.modifier.modifier}:<span class="Entity">${token.filter.name}</span>
                 </div>`;
       }
       if (token.type === 'FromFilter') {
         return `<div class="Token FromToken">
-                ${token.rawToken}</span>
+                ${token.modifier.modifier}:<span class="Entity">${token.filter.name}</span>
                 </div>`;
       }
       return '';
@@ -102,6 +125,6 @@ function renderFromTree(parseTree) {
 
 document.querySelector('[data-js="input"]').addEventListener('keyup', (e) => {
   document.querySelector('[data-js="visualizer"]').innerHTML = renderFromTree(
-    sparse(e.target.value)
+    parse(e.target.value)
   );
 });
